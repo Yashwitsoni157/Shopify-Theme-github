@@ -1,0 +1,259 @@
+<style>
+.decimal_qty {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 0px;
+    max-width: 141px;
+    min-width: 64px;
+    border: 1px solid black;
+    padding: 0px 11px;
+    height:50px;
+}
+    .decimal_qty_cart {
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    margin-bottom: 0px;
+    max-width: 141px;
+    min-width: 64px;
+    border: 1px solid #545454;
+    padding: 0px 10px;
+    float: left;
+    height: 50px;
+   }
+    
+    /* .qty_mains {
+    display: flex;
+    align-items: center;
+          flex-direction: column
+} */
+    .meter_qty{
+     margin-left: 10px;
+    }
+ .decimal {
+    /* min-height: inherit; */
+    text-align: center;
+    width: 100%;
+    border: none;
+    margin-left: 0;
+    font-size: 14px;
+}
+    .decimal_cart {
+    min-height: inherit;
+    text-align: center;
+    width: 100%;
+    border: none;
+    margin-left: 0;
+    font-size: 14px;
+}
+  .decimal-feat-qty .decimal_qty {
+    border:2px solid #FF7C40;
+       max-width: 142px;
+  }
+  .decimal-feat-qty .decimal {
+    background:transparent;
+  }
+.decimal-feat-qty span.sub, 
+.decimal-feat-qty span.add {
+  color: #FF7C40;
+}
+
+   
+span.sub, .add {
+    min-height: inherit;
+    padding: 0px 0px;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+}
+    span.sub_cart, .add_cart {
+    min-height: inherit;
+    padding: 0px 0px;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+}
+  
+label.qtymetersla {
+    width: 100%;
+    display: flex;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-family: "Twentieth Century";
+    letter-spacing: 1px !important;
+    text-transform: capitalize !important;
+    font-size: 17px !important;
+}
+    span#add svg {
+    font-size: 10px;
+    width: 12px;
+}
+    
+    span#sub svg {
+    font-size: 10px;
+    width: 12px;
+    color: black;
+}
+ 
+    .qty_meter {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+    span.custom_price.product__price {
+    display: flex;
+    align-items: center;
+}
+    
+    label.qtymetersla {
+    margin-top: 0px;
+}
+</style>
+
+
+{% comment %}Only useful when there is common step size across products{% endcomment %}
+
+{% if settings.pr_enable_decimal %}
+<script>
+var step_size = {{settings.pr_decimal_step_size | json}}
+var min_qty = {{ settings.pr_minimum_qty | default: 1 }};
+</script>
+{% endif %}
+{% if template == 'product' %}
+<script>
+ 
+document.addEventListener('DOMContentLoaded', () => {
+        let btnadd = document.querySelector('.add');
+        let btnsub = document.querySelector('.sub');
+        let input = document.querySelector('.decimal');
+        let quant = document.querySelector('.js-qty__num_custom');
+        let lineitem = document.querySelector('.line-item-quantity');
+   
+        if({{settings.pr_common_decimal}}){
+        	var step = parseFloat({{ settings.pr_decimal_step_size }});
+          }else
+          {
+            var step = parseFloat({{ product.metafields.propero.decimal_step_size }});
+          }
+       console.log("input.value", input.value);
+        let value = parseFloat(input.value);
+        input.value = value.toFixed(2);
+        quant.value = (input.value/step).toFixed(0);
+
+        btnadd.addEventListener('click', function(){
+          let value = parseFloat(input.value) + step;
+          input.value = value.toFixed(2);
+          quant.value = (input.value/step).toFixed(0);
+          console.log('normal', value, input.value, quant.value);
+             if (lineitem) {
+              lineitem.value = input.value; 
+          }
+        });
+
+        btnsub.addEventListener('click', function(){
+          let value = parseFloat(input.value) - step;
+          if(value >= {{ settings.pr_minimum_qty }})
+             input.value = value.toFixed(2);
+          quant.value = (input.value/step).toFixed(0);
+        });
+
+        input.addEventListener('focusout', function(){
+          let now_input_val = document.querySelector('.decimal').value;
+          console.log(now_input_val);
+          var n = (now_input_val/step).toFixed(0);
+          console.log(now_input_val);
+          quant.value = n;
+        });
+        input.addEventListener('keyup', function(){
+          let now_input_val = document.querySelector('.decimal').value;
+          console.log(now_input_val);
+          var n = (now_input_val/step).toFixed(0);
+          quant.value = n;
+        });
+    });
+</script> 
+{% endif %}
+
+<script>
+    
+    function btnadd_cart_event(el) {
+      let perentnode = el.parentNode;
+      let input_Cart = el.previousSibling.previousSibling; 
+      console.log("input_Cart", input_Cart.value);
+      let quant_Cart = perentnode.parentNode.children[1].children[1];
+      console.log("quant_Cart", quant_Cart);
+      console.log("input_Cart min:", input_Cart.min);  
+      let stepvar = input_Cart.getAttribute("data-step-size");
+      console.log("stepvar", stepvar);
+      var step = parseFloat(stepvar);
+      console.log("step" ,step);
+      let value = parseFloat(input_Cart.value) + step;
+      input_Cart.value = value.toFixed(2);
+      quant_Cart.value = (input_Cart.value/step).toFixed(0);
+      quant_Cart.dispatchEvent(new Event('change', { bubbles: true }));
+       quant_Cart.dispatchEvent(new Event('input', { bubbles: true }));
+      
+    }
+ 
+
+      function btnsub_cart_event(el) {
+      let perentnode = el.parentNode;
+        console.log("perentnode", perentnode);
+      let input_Cart = el.nextSibling.nextSibling;
+      let quant_Cart = perentnode.parentNode.children[1].children[1];
+      let stepvar = input_Cart.getAttribute("data-step-size");
+      var step = parseFloat(stepvar);
+      let value = parseFloat(input_Cart.value) - step;
+        console.log(min_qty, value);
+        if(value < min_qty){	 
+      input_Cart.value = 0;
+      quant_Cart.value = 0;
+        } else if(value >= min_qty){
+          input_Cart.value = value.toFixed(2);
+          quant_Cart.value = (input_Cart.value/step).toFixed(0);
+        }
+            quant_Cart.dispatchEvent(new Event('change', { bubbles: true }));
+       quant_Cart.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  
+  function focusout(el) {    
+   let perentnode = el.parentNode;
+      let input_Cart = el;
+    console.log("i", input_Cart);
+      let quant_Cart = perentnode.parentNode.children[1].children[1]; 
+    console.log("q", input_Cart);
+      let value = parseFloat(input_Cart.value);
+      let stepvar = input_Cart.getAttribute("data-step-size");
+      var step = parseFloat(stepvar);
+      input_Cart.value = value.toFixed(1);
+      quant_Cart.value = (input_Cart.value/step).toFixed(0);
+      let box =  parseFloat(input_cart.value/step);
+       var event_cart = document.createEvent('Event');
+            event_cart.initEvent('change', true, false);
+            quant_Cart.dispatchEvent(event_cart);
+      }
+
+    function onkeyup(el) {
+        let perentnode = el.parentNode;
+      let input_Cart = el;
+      let quant_Cart = perentnode.parentNode.children[1].children[1]; 
+      let value = parseFloat(input_Cart.value);
+      input_Cart.value = value.toFixed(1);
+      quant_Cart.value = (input_Cart.value/step).toFixed(0);
+    var event_cart = document.createEvent('Event');
+          event_cart.initEvent('change', true, false);
+          quant_Cart.dispatchEvent(event_cart);
+    }
+
+
+</script>
+
+
