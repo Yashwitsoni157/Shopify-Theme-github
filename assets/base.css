@@ -3599,3 +3599,9 @@ details-disclosure > details {
 .header-wrapper {
  background: antiquewhite; 
 }
+.utility-bar {
+  background:black;
+}
+.announcement-bar__message {
+  color:white;
+}
